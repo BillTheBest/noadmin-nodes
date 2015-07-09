@@ -1,0 +1,19 @@
+{
+  "name"         : "node-red-contrib-jwt",
+  "version"      : "0.0.1",
+  "description"  : "Node-RED contrib nodes for JWT authentication",
+  "homepage"     : "http://nodered.org",
+  "license"      : "AGPLv3",
+  "repository"   : {
+    "type":"git",
+    "url":"https://github.com/ResearchComputing/noadmin-nodes"
+  },
+  "contributors": [
+    {"name": "Zebula Sampedro"}
+  ],
+  "keywords": [
+    "Node-RED", "nodes", "iot", "jwt", "token", "auth"
+  ],
+  "dependencies": {
+  }
+}
