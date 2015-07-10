@@ -1,0 +1,26 @@
+{
+  "name"         : "node-red-contrib-pam-auth",
+  "version"      : "0.0.1",
+  "description"  : "Node-RED contrib nodes for PAM authentication",
+  "homepage"     : "http://nodered.org",
+  "license"      : "AGPLv3",
+  "repository"   : {
+    "type":"git",
+    "url":"https://github.com/ResearchComputing/noadmin-nodes"
+  },
+  "contributors": [
+    {"name": "Zebula Sampedro"}
+  ],
+  "keywords": [
+    "Node-RED", "nodes", "iot", "pam", "auth"
+  ],
+  "dependencies": {
+    "nan": "",
+    "authenticate-pam": ""
+  },
+  "node-red": {
+    "nodes": {
+      "auth": "pam.js"
+    }
+  }
+}

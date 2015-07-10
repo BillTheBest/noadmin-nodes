@@ -1,0 +1,46 @@
+<script type="text/x-red" data-template-name="pam-auth">
+   <!-- data-template-name identifies the node type this is for              -->
+
+   <!-- Each of the following divs creates a field in the edit dialog.       -->
+   <!-- Generally, there should be an input for each property of the node.   -->
+   <!-- The for and id attributes identify the corresponding property        -->
+   <!-- (with the 'node-input-' prefix).                                     -->
+   <!-- The available icon classes are defined Twitter Bootstrap glyphicons  -->
+    <!-- By convention, most nodes have a 'name' property. The following div -->
+    <!-- provides the necessary field. Should always be the last option      -->
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="pam-auth">
+   <!-- data-help-name identifies the node type this help is for             -->
+   <!-- This content appears in the Info sidebar when a node is selected     -->
+   <!-- The first <p> is used as the pop-up tool tip when hovering over a    -->
+   <!-- node in the palette.                                                 -->
+   <p>Authenticate against PAM.</p>
+   <p>Authenticates against PAM, using <b>msg.username</b> and <b>msg.password</b>.
+   If authentication is successful, <b>msg.user</b> will be equal to the username
+   of the authenticated user. If authentication failed, <b>msg.user</b> will be
+   <i>undefined</i></p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('pam-auth',{
+        category: 'auth',
+        color: "#C7E9C0",
+        icon: "hash.png",
+        defaults: {
+          name: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        label: function() {
+            return this.name||"pam-auth";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
