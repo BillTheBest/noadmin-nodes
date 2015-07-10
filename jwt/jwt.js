@@ -30,7 +30,7 @@ module.exports = function(RED) {
 
       this.on('input', function (msg) {
         if (credentials.secret) {
-          msg.jwtToken = jwt.sign({ foo: 'bar' }, credentials.secret);
+          msg.jwtToken = jwt.sign({ user: msg.user }, credentials.secret);
         } else {
           this.error("No secret provided.");
         }
@@ -39,9 +39,34 @@ module.exports = function(RED) {
       });
     }
 
+    RED.nodes.registerType("jwt-sign",JwtSignNode);
+
+    function JwtVerifyNode(n) {
+      RED.nodes.createNode(this,n);
+
+      this.jwtSecret = n.jwtSecret;
+      var credentials = RED.nodes.getCredentials(this.jwtSecret);
+      if (!(credentials && credentials.secret)) {
+        this.error("Missing JWT secret.");
+      }
+
+      this.on('input', function (msg) {
+        if (msg.jwtToken) {
+          try {
+            var decoded = jwt.verify(msg.jwtToken,credentials.secret);
+            msg.user = decoded.user;
+          } catch(err) {
+            msg.user = undefined;
+          }
+        } else {
+          this.error('No token provided.');
+        }
+        this.send(msg);
+      });
+    }
+
     // Register the node by name. This must be called before overriding any of the
     // Node functions.
-    RED.nodes.registerType("jwt-sign",JwtSignNode);
-    // RED.nodes.registerType("jwt-verify",JwtVerifyNode);
+    RED.nodes.registerType("jwt-verify",JwtVerifyNode);
 
 }
