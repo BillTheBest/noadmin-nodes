@@ -15,12 +15,12 @@ module.exports = function(RED) {
             msg.user = undefined;
             node.error("Failed PAM auth for user: "+msg.username);
           } else {
-            node.warn("PAM auth successful: "+msg.username);
             msg.user = msg.username;
+            node.warn("PAM auth successful: "+msg.username);
           }
+          node.send(msg);
         });
       }
-      node.send(msg);
     });
   }
 
