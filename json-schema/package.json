@@ -1,7 +1,7 @@
 {
-  "name"         : "node-red-contrib-jwt",
+  "name"         : "node-red-contrib-json-schema",
   "version"      : "0.0.1",
-  "description"  : "Node-RED contrib nodes for JWT authentication",
+  "description"  : "Node-RED contrib nodes for working with JSON Schema (v4)",
   "homepage"     : "http://nodered.org",
   "license"      : "AGPLv3",
   "repository"   : {
@@ -12,8 +12,14 @@
     {"name": "Zebula Sampedro"}
   ],
   "keywords": [
-    "Node-RED", "nodes", "iot", "jwt", "token", "auth", "json", "schema"
+    "Node-RED", "nodes", "iot", "json", "schema", "validation", "hyper-schema"
   ],
   "dependencies": {
+    "tv4": ""
+  },
+  "node-red": {
+    "nodes": {
+      "json-schema": "json-schema.js"
+    }
   }
 }
