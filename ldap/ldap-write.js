@@ -149,30 +149,42 @@ module.exports = function(RED) {
                         node.ldap.add(dn, attrs, function(err){
                             if(err) {
                                 console.log("", err);
-                                if(err.msgid == 3 && err.code == 68) {
+                                if(err.code == 68) {
                                     // Object already exists
                                     // Try modifying the object
-                                    console.log("attempting modify");
                                     for(var x in attrs) {
                                         attrs[x]['op'] = "replace";
-                                        console.log(attrs[x]);
                                     }
                                     node.ldap.modify(dn, attrs, function(err){
                                         if(err) {
                                             console.log("", err);
                                         } else {
                                             console.log("modified");
+                                            node.send(msg);
                                         }
                                     });
                                 }
                             } else {
                                 console.log("Added/Modified");
+                                node.send(msg);
                             }
                         });
                     } else if(node.operation == "modify") {
                         // Do something
                     } else if(node.operation == "remove") {
                         // Do something
+                        node.ldap.remove(dn, function(err){
+                            if(err){
+                                console.log("", err);
+                                if(err.code == 32) {
+                                    //Object not Found
+                                    console.log("Record does not exist");
+                                }
+                            } else {
+                                console.log("deleted");
+                                node.send(msg);
+                            }
+                        });
                     }
                 } else {
                     node.error("not connected");
