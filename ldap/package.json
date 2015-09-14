@@ -1,0 +1,25 @@
+{
+  "name"         : "node-red-ldap-write",
+  "version"      : "0.0.1",
+  "description"  : "Node-RED node for writing/modifying LDAP",
+  "homepage"     : "http://nodered.org",
+  "license"      : "AGPLv3",
+  "repository"   : {
+    "type":"git",
+    "url":"https://github.com/ResearchComputing/noadmin-nodes"
+  },
+  "contributors": [
+    {"name": "Saurabh Sood"}
+  ],
+  "keywords": [
+    "Node-RED", "nodes", "iot", "ldap"
+  ],
+  "dependencies": {
+    "LDAP": ""
+  },
+  "node-red": {
+    "nodes": {
+      "ldap-write": "ldap-write.js"
+    }
+  }
+}
