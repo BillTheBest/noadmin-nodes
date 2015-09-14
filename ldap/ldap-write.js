@@ -24,6 +24,7 @@ module.exports = function(RED) {
         this.server = n.server;
         this.port = n.port;
         this.tls = n.tls;
+        this.operation = n.operation;
         if (this.credentials) {
             this.binddn = this.credentials.binddn;
             this.password = this.credentials.password;
@@ -36,6 +37,7 @@ module.exports = function(RED) {
         this.base = n.base;
         this.filter = n.filter;
         this.topic = n.topic;
+        this.operation = n.operation;
         this.ldapServer = RED.nodes.getNode(this.server);
         var credentials = RED.nodes.getCredentials(this.server);
         if (this.ldapServer) {
@@ -106,7 +108,6 @@ module.exports = function(RED) {
                                 } else {
                                     singleAttribute['vals'] = [payload[key]]
                                 }
-                                
                                 attrs.push(singleAttribute);
                             }
                         }
@@ -143,13 +144,36 @@ module.exports = function(RED) {
                     }
 
                     //TODO: Pass message to next node
-                    node.ldap.add(dn, attrs, function(err){
-                        if(err) {
-                            console.log("", err);
-                        } else {
-                            console.log("Added/Modified");
-                        }
-                    });
+                    console.log("Operation:", node.operation);
+                    if(node.operation == "add") {
+                        node.ldap.add(dn, attrs, function(err){
+                            if(err) {
+                                console.log("", err);
+                                if(err.msgid == 3 && err.code == 68) {
+                                    // Object already exists
+                                    // Try modifying the object
+                                    console.log("attempting modify");
+                                    for(var x in attrs) {
+                                        attrs[x]['op'] = "replace";
+                                        console.log(attrs[x]);
+                                    }
+                                    node.ldap.modify(dn, attrs, function(err){
+                                        if(err) {
+                                            console.log("", err);
+                                        } else {
+                                            console.log("modified");
+                                        }
+                                    });
+                                }
+                            } else {
+                                console.log("Added/Modified");
+                            }
+                        });
+                    } else if(node.operation == "modify") {
+                        // Do something
+                    } else if(node.operation == "remove") {
+                        // Do something
+                    }
                 } else {
                     node.error("not connected");
                 }
