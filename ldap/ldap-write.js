@@ -25,6 +25,8 @@ module.exports = function(RED) {
         this.port = n.port;
         this.tls = n.tls;
         this.operation = n.operation;
+        this.objectclass = n.objectclass;
+        this.basedn = n.basedn;
         if (this.credentials) {
             this.binddn = this.credentials.binddn;
             this.password = this.credentials.password;
@@ -38,6 +40,8 @@ module.exports = function(RED) {
         this.filter = n.filter;
         this.topic = n.topic;
         this.operation = n.operation;
+        this.objectclass = n.objectclass;
+        this.basedn = n.basedn;
         this.ldapServer = RED.nodes.getNode(this.server);
         var credentials = RED.nodes.getCredentials(this.server);
         if (this.ldapServer) {
@@ -98,50 +102,30 @@ module.exports = function(RED) {
 
                     var attrs = [];
 
-                    for (var key in payload) {
-                        if(payload.hasOwnProperty(key)) {
-                            if(key != 'ou' && key != 'dn'){
-                                var singleAttribute = {};
-                                singleAttribute['attr'] = key;
-                                if(Array.isArray(payload[key])){
-                                    singleAttribute['vals'] = payload[key]
-                                } else {
-                                    singleAttribute['vals'] = [payload[key]]
-                                }
-                                attrs.push(singleAttribute);
+                    //Convert the objectClass to an array
+                    var objectClass = node.objectclass.split(",");
+
+                    //Push the objectclass to attrs array
+                    attrs.push({'attr': 'objectClass', 'vals': objectClass});
+                    //Get the attributes in the payload
+                    //Iterate through the attributes and add to the attrs object
+                    var payloadAttrs = payload.attrs;
+                    for (var key in payloadAttrs) {
+                        if(payloadAttrs.hasOwnProperty(key)) {
+                            var singleAttribute = {};
+                            singleAttribute['attr'] = key;
+                            if(Array.isArray(payloadAttrs[key])){
+                                singleAttribute['vals'] = payloadAttrs[key]
+                            } else {
+                                singleAttribute['vals'] = [payloadAttrs[key]]
                             }
-                        }
-                    }
-                    
-                    var binddncomponents = node.ldapServer.binddn.split(',');
-                    var bindcn = "", bindou = "", binddc = "", binduid = "";
-
-                    for(var index = 0; index < binddncomponents.length; index++) {
-                        var component = binddncomponents[index];
-                        if(component.indexOf("cn=") == 0) {
-                            bindcn = component.replace('cn=', '');
-                        } else if(component.indexOf('ou=') == 0) {
-                            bindou = component.replace('ou=', '');
-                        } else if(component.indexOf('dc=') == 0) {
-                            binddc = component.replace('dc=', '');
-                        } else if(component.indexOf('uid=') == 0) {
-                            binduid = component.replace('uid=', '');
+                            attrs.push(singleAttribute);
                         }
                     }
 
-                    // Form DN
-                    // TODO: change to reflect tree structure in LDAP instance
-                    var dn = ""
-                    if(typeof payload['uid'] != 'undefined' || binduid != "") {
-                        dn += 'uid=' + (payload['uid'] || binduid); 
-                    }
-                    if(typeof payload['dc'] != 'undefined' || binddc != "") {
-                        if(dn == '') {
-                            dn += 'dc=' + (payload['dc'] || binddc);
-                        } else {
-                            dn += ',dc=' + (payload['dc'] || binddc);
-                        }
-                    }
+                    var dn = payload.entry + "," + node.basedn;
+                    console.log(dn);
+                    console.log("", attrs);
 
                     //TODO: Pass message to next node
                     console.log("Operation:", node.operation);

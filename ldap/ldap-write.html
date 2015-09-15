@@ -29,6 +29,10 @@
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name"><br />
+        <label for="node-input-basedn"><i class="fa fa-tag"></i> Base DN</label>
+        <input type="text" id="node-input-basedn" placeholder="Base DN"><br />
+        <label for="node-input-objectclass"><i class="fa fa-tag"></i> objectClass</label>
+        <input type="text" id="node-input-objectclass" placeholder="objectClass"><br />
         <label for="node-input-operation"><i class="fa fa-tag"></i> Operation</label>
         <select name="operation" id="node-input-operation">
           <option value="add" selected>Add</option>
@@ -52,7 +56,9 @@
         defaults: {             // defines the editable properties of the node
             name: {value:""},   //  along with default values.
             server: {type: "ldap", required:true},
-            operation: {value: ""}
+            operation: {value: "", required:true},
+            basedn: {value: "", required: true},
+            objectclass: {value: "", required: true}
         },
         inputs:1,               // set the number of inputs - only 0 or 1
         outputs:1,              // set the number of outputs - 0 to n
