@@ -14,11 +14,17 @@ module.exports = function(RED) {
   function JsonSchemaValidator(n) {
     RED.nodes.createNode(this,n);
     var configNode = RED.nodes.getNode(n.jsonSchema);
+    var schema = JSON.parse(configNode.schema);
 
     this.on('input', function (msg) {
-      var valid = tv4.validate(msg.payload, configNode.schema);
-      if (!valid) {
-        this.error(tv4.error);
+      if (schema) {
+        var valid = tv4.validate(msg.payload,schema);
+        if (!valid) {
+          this.error(tv4.error);
+          msg.payload = '';
+        }
+      } else {
+        this.error("Invalid JSON provided in config.");
         msg.payload = '';
       }
       this.send(msg);
@@ -30,9 +36,15 @@ module.exports = function(RED) {
   function GetJsonSchema(n) {
     RED.nodes.createNode(this,n);
     var configNode = RED.nodes.getNode(n.jsonSchema);
+    var schema = JSON.parse(configNode.schema);
 
     this.on('input', function(msg) {
-      msg.payload = configNode.schema;
+      if (schema) {
+        msg.payload = schema;
+      } else {
+        this.error("Invalid JSON provided in config.");
+        msg.payload = '';
+      }
       this.send(msg);
     });
   }
