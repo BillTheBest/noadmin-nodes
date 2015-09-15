@@ -132,7 +132,6 @@ module.exports = function(RED) {
                     if(node.operation == "add") {
                         node.ldap.add(dn, attrs, function(err){
                             if(err) {
-                                console.log("", err);
                                 if(err.code == 68) {
                                     // Object already exists
                                     // Try modifying the object
@@ -141,37 +140,46 @@ module.exports = function(RED) {
                                     }
                                     node.ldap.modify(dn, attrs, function(err){
                                         if(err) {
-                                            console.log("", err);
+                                            node.error(err.message, msg);
                                         } else {
-                                            console.log("modified");
+                                            //Modified
                                             node.send(msg);
                                         }
                                     });
+                                } else {
+                                    node.error(err.message, msg);
                                 }
                             } else {
-                                console.log("Added/Modified");
+                                //Added/Modified
                                 node.send(msg);
                             }
                         });
                     } else if(node.operation == "modify") {
-                        // Do something
+                        //TODO: Find if 'op' needs to be added to attribute
+                        //Modify the LDAP record based on provided DN and modified attributes
+                        node.ldap.modify(dn, attrs, function(err){
+                            if(err) {
+                                node.error(err.message, msg);
+                            } else {
+                                //Modified
+                                node.send(msg);
+                            }
+                        });
                     } else if(node.operation == "remove") {
-                        // Do something
+                        //Remove the LDAP record based on the provided DN
                         node.ldap.remove(dn, function(err){
                             if(err){
-                                console.log("", err);
-                                if(err.code == 32) {
-                                    //Object not Found
-                                    console.log("Record does not exist");
-                                }
+                                node.error(err.message, msg);
                             } else {
-                                console.log("deleted");
+                                //Object Deleted
+                                //Pass on object
                                 node.send(msg);
                             }
                         });
                     }
                 } else {
                     node.error("not connected");
+                    node.error("Not connected to LDAP", msg);
                 }
             });
             this.on('close',function() {
