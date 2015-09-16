@@ -119,10 +119,9 @@ module.exports = function(RED) {
                         }
                     }
 
+                    //Compute the dn which is RDN,BaseDN
                     var dn = payload.entry + "," + node.basedn;
 
-                    //TODO: Pass message to next node
-                    console.log("Operation:", node.operation);
                     if(node.operation == "add") {
                         node.ldap.add(dn, attrs, function(err){
                             if(err) {
@@ -172,7 +171,6 @@ module.exports = function(RED) {
                         });
                     }
                 } else {
-                    node.error("not connected");
                     node.error("Not connected to LDAP", msg);
                 }
             });
