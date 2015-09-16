@@ -16,6 +16,39 @@ module.exports = function(RED) {
 
     var connection;
 
+    function getChangesList(record, attrs) {
+        var changes = [];
+        for (var index in attrs) {
+            var key = attrs[index]['attr'];
+            if(typeof record[key] != 'undefined') {
+                // Key exists in the record
+                // Check if they are same.
+                if(record[key] != attrs[index][key]) {
+                    // Add to changes
+                    // op as replace
+                    // replace record value with the value provided in payload
+                    var changeAttr = {
+                        'op': 'replace',
+                        'title': key,
+                        'vals': attrs[index]['vals']
+                    };
+                    changes.push(changeAttr);
+                }
+            } else {
+                // The attribute is not in record
+                // Add the attribute to record
+                // op as add
+                var changeAttr = {
+                    'op': 'add',
+                    'title': key,
+                    'vals': attrs[index][key]
+                };
+                changes.push(changeAttr);
+            }
+        }
+        return changes;
+    }
+
     function ldapNode(n) {
         RED.nodes.createNode(this,n);
 
@@ -102,12 +135,17 @@ module.exports = function(RED) {
                     var objectClass = node.objectclass.split(",");
 
                     //Push the objectclass to attrs array
-                    attrs.push({'attr': 'objectClass', 'vals': objectClass});
+                    var objectClassAttr = {'attr': 'objectClass', 'vals': objectClass};
                     //Get the attributes in the payload
                     //Iterate through the attributes and add to the attrs object
                     var payloadAttrs = payload.attrs;
                     for (var key in payloadAttrs) {
                         if(payloadAttrs.hasOwnProperty(key)) {
+                            if(key == "objectClass") {
+                                objectClassAttr.vals = payloadAttrs[key];
+                                attrs.push(objectClassAttr);
+                                continue;
+                            }
                             var singleAttribute = {};
                             singleAttribute['attr'] = key;
                             if(Array.isArray(payloadAttrs[key])){
@@ -118,7 +156,6 @@ module.exports = function(RED) {
                             attrs.push(singleAttribute);
                         }
                     }
-
                     //Compute the dn which is RDN,BaseDN
                     var dn = payload.entry + "," + node.basedn;
 
@@ -126,21 +163,35 @@ module.exports = function(RED) {
                         node.ldap.add(dn, attrs, function(err){
                             if(err) {
                                 if(err.code == 68) {
-                                    // Object already exists
-                                    // Try modifying the object
-                                    for(var x in attrs) {
-                                        attrs[x]['op'] = "replace";
-                                    }
+                                    // Query LDAP with the DN
+                                    var search_options = {
+                                        base: node.basedn,
+                                        scope: '',
+                                        filter: payload.entry,
+                                        attrs: ''
+                                    };
+                                    node.ldap.search(search_options, function(err, data){
+                                        if(err) {
+                                        } else {
+                                            // Got the Record from LDAP
+
+                                            // Iterate through the record
+                                            var record = data[0];
+                                            var changes = getChangesList(record, attrs);
+                                        }
+                                    });
+
                                     node.ldap.modify(dn, attrs, function(err){
                                         if(err) {
-                                            node.error(err.message, msg);
+                                            node.error("Error modifying: ", err);
                                         } else {
                                             //Modified
                                             node.send(msg);
                                         }
                                     });
+
                                 } else {
-                                    node.error(err.message, msg);
+                                    node.error("", err);
                                 }
                             } else {
                                 //Added/Modified
@@ -150,9 +201,27 @@ module.exports = function(RED) {
                     } else if(node.operation == "modify") {
                         //TODO: Find if 'op' needs to be added to attribute
                         //Modify the LDAP record based on provided DN and modified attributes
+
+                        // Query LDAP with the DN
+                        var search_options = {
+                            base: node.basedn,
+                            scope: '',
+                            filter: payload.entry,
+                            attrs: ''
+                        };
+                        node.ldap.search(search_options, function(err, data){
+                            if(err) {
+                            } else {
+                                // Got the Record from LDAP
+                                // Iterate through the record
+                                var record = data[0];
+                                var changes = getChangesList(record, attrs);
+                            }
+                        });
+
                         node.ldap.modify(dn, attrs, function(err){
                             if(err) {
-                                node.error(err.message, msg);
+                                node.error("Error modifying: ", err);
                             } else {
                                 //Modified
                                 node.send(msg);
