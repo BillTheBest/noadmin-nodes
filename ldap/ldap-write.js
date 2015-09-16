@@ -1,5 +1,3 @@
-// Copyright 2013,2014 IBM Corp.
-
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
@@ -64,8 +62,6 @@ module.exports = function(RED) {
                 }
             }
 
-            // this.log(util.inspect(ldapOptions));
-
             this.ldap = new LDAP(ldapOptions);
             var node = this
             this.status({fill:"red",shape:"ring",text:"disconnected"});
@@ -124,8 +120,6 @@ module.exports = function(RED) {
                     }
 
                     var dn = payload.entry + "," + node.basedn;
-                    console.log(dn);
-                    console.log("", attrs);
 
                     //TODO: Pass message to next node
                     console.log("Operation:", node.operation);

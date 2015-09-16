@@ -1,6 +1,4 @@
 <!--
-  Copyright 2014 IBM Corp.
-
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -14,13 +12,7 @@
   limitations under the License.
 -->
 
-<!-- Sample html file that corresponds to the 99-sample.js file              -->
-<!-- This creates and configures the onscreen elements of the node           -->
-
-<!-- If you use this as a template, update the copyright with your own name. -->
-
-<!-- First, the content of the edit dialog is defined.                       -->
-
+<!--Edit Template for LDAP write node -->
 <script type="text/x-red" data-template-name="ldap-write out">
     <div class="form-row">
         <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
@@ -42,29 +34,42 @@
     </div>
 </script>
 
-
-<!-- Next, some simple help text is provided for the node.                   -->
+<!--Help Template for LDAP write node -->
 <script type="text/x-red" data-help-name="ldap-write out">
-// TODO
+<p>The LDAP write node modifies the provided LDAP server configuration. It supports the following operations:</p>
+<ul>
+  <li>Adding an LDAP Record</li>
+  <li>Removing an LDAP Record</li>
+  <li>Modifying an LDAP Record based on changed attributes </li>
+</ul>
+<p>The node takes in the following parameters:</p>
+<ul>
+  <li>Server: The URI of the LDAP server</li>
+  <li>Port: The port that the LDAP server listens on</li>
+  <li>Bind DN: The DN to be used to connect to the server</li>
+  <li>Password: The password to be used to connect to the server</li>
+  <li>Name: The name to be used for the node</li>
+  <li>Base DN: The Base DN to be used for LDAP operations</li>
+  <li>objectClass: A Comma separated list which specify what type of records will be acted upon</li>
+  <li>Operation: Specifies the operation that would be performed. Can be one of <i>Add</i>, <i>Modify</i>, <i>Remove</i></li>
+</ul>
+<p>In case the LDAP operation succeeds, the incoming <b>msg</b> object is passed on to the subsequent node. In case of an error, the message is not passed to the subsequent node, and an error is raised. An exception to this, is the case in adding an LDAP record if the record already exists. In this case, an attempt to modify the record is made, based on the provided properties.  </p>
 </script>
 
-<!-- Finally, the node type is registered along with all of its properties   -->
-<!-- The example below shows a small subset of the properties that can be set-->
 <script type="text/javascript">
     RED.nodes.registerType('ldap-write out',{
-        category: 'storage-output',      // the palette category
-        defaults: {             // defines the editable properties of the node
-            name: {value:""},   //  along with default values.
+        category: 'storage-output',      
+        defaults: {             
+            name: {value:""},   
             server: {type: "ldap", required:true},
             operation: {value: "", required:true},
             basedn: {value: "", required: true},
             objectclass: {value: "", required: true}
         },
-        inputs:1,               // set the number of inputs - only 0 or 1
-        outputs:1,              // set the number of outputs - 0 to n
+        inputs:1,               
+        outputs:1,              
         color: "rgb(218, 196, 180)",
-        // set the icon (held in icons dir below where you save the node)
-        icon: "watch.png",     // saved in  icons/myicon.png
+        icon: "watch.png",    
         label: function() {
             return this.name||this.topic||"LDAP Write Node";
         },
