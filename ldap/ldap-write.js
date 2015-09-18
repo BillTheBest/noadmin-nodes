@@ -171,25 +171,27 @@ module.exports = function(RED) {
                                         attrs: ''
                                     };
                                     node.ldap.search(search_options, function(err, data){
-                                        if(err) {
+                                        if(err || data.length == 0) {
+                                            if(err) {
+                                                node.error("", err);
+                                            } else {
+                                                node.error("Object does not exist");
+                                            } 
                                         } else {
                                             // Got the Record from LDAP
-
                                             // Iterate through the record
                                             var record = data[0];
                                             var changes = getChangesList(record, attrs);
+                                            node.ldap.modify(dn, attrs, function(err){
+                                                if(err) {
+                                                    node.error("Error modifying: ", err);
+                                                } else {
+                                                    //Modified
+                                                    node.send(msg);
+                                                }
+                                            });
                                         }
                                     });
-
-                                    node.ldap.modify(dn, attrs, function(err){
-                                        if(err) {
-                                            node.error("Error modifying: ", err);
-                                        } else {
-                                            //Modified
-                                            node.send(msg);
-                                        }
-                                    });
-
                                 } else {
                                     node.error("", err);
                                 }
@@ -210,21 +212,25 @@ module.exports = function(RED) {
                             attrs: ''
                         };
                         node.ldap.search(search_options, function(err, data){
-                            if(err) {
+                            if(err || data.length == 0) {
+                                if(err) {
+                                    node.error("", err);
+                                } else {
+                                    node.error("Object does not exist");
+                                }
                             } else {
                                 // Got the Record from LDAP
                                 // Iterate through the record
                                 var record = data[0];
                                 var changes = getChangesList(record, attrs);
-                            }
-                        });
-
-                        node.ldap.modify(dn, attrs, function(err){
-                            if(err) {
-                                node.error("Error modifying: ", err);
-                            } else {
-                                //Modified
-                                node.send(msg);
+                                node.ldap.modify(dn, attrs, function(err){
+                                    if(err) {
+                                        node.error("", err);
+                                    } else {
+                                        //Modified
+                                        node.send(msg);
+                                    }
+                                });
                             }
                         });
                     } else if(node.operation == "remove") {
